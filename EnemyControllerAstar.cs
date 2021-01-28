@@ -11,24 +11,34 @@ public class EnemyControllerAstar : MonoBehaviour {
     public Rigidbody2D theRB;
     // public float moveSpeed;
 
-    public float rangeToChase;
+    public bool stopShoot;
+    public float rangeToChase, rangeToStop;
     // private Vector3 moveDirection;
     public Animator anim;
     // Set HP
     public int health = 150;
 
     public GameObject[] deathSplatter;
+    public GameObject[] russianBullets;
     public GameObject hitEffect;
 
     public bool shouldShoot;
-    public bool isDead = false;
-    public bool spotted = false;
+    public float canShootTimer = 1;
+    public bool canShoot = true;
+
+    
+    
     // Shooting
     public GameObject bullet;
     public Transform firePoint;
     public float fireRate;
-    private float fireCounter;
+    public float lowFireRate;
+    public float mediumFireRate;
+    public float highFireRate;
+    public float fireCounter;
     public float shootRange;
+    public float bulletSpeed;
+    public bool russian;
 
     public SpriteRenderer body;
 
@@ -61,8 +71,10 @@ public class EnemyControllerAstar : MonoBehaviour {
         if (body.isVisible && PlayerController.instance.gameObject.activeInHierarchy) {
             Move();
             sightTest();
-            shoot();
-            pingDifficultyChange();
+            shootTest();
+            if(canShoot) {
+               shoot();
+            }
         }
         else { // Stand still
             theRB.velocity = Vector2.zero;
@@ -113,7 +125,8 @@ public class EnemyControllerAstar : MonoBehaviour {
     // Enemy movement
     void Move() {
         // Set active if close
-        if (Vector3.Distance(transform.position, PlayerController.instance.transform.position) < rangeToChase) {
+        if ((Vector3.Distance(transform.position, PlayerController.instance.transform.position) < rangeToChase) 
+            && (Vector3.Distance(transform.position, PlayerController.instance.transform.position) > rangeToStop)) {
             
             speed = 400f;
             theRB.drag = 2f;
@@ -157,16 +170,28 @@ public class EnemyControllerAstar : MonoBehaviour {
         }
     }
 
-    void shoot() { // Bang bang, fire bullets
+    void shoot() { // Bang bang, fire bullets 
         if (shouldShoot && Vector3.Distance(transform.position, PlayerController.instance.transform.position) < shootRange) {
             fireCounter -= Time.deltaTime;
             if (fireCounter <= 0) {
                 fireCounter = fireRate;
+                pingDifficultyChange();
                 AudioManager.instance.playSfx(16);
-                Instantiate(bullet, firePoint.position, firePoint.rotation); // Mkae bullet, send out bullet
+                if(!russian) {
+                    Instantiate(bullet, firePoint.position, firePoint.rotation); // Mkae bullet, send out bullet
+                }
+                else {
+                    theRB.velocity = Vector2.zero;
+                    anim.SetTrigger("shoot");
+                    int rand = Random.Range(0, russianBullets.Length);
+                    Instantiate(russianBullets[rand], transform.position, transform.rotation);
+                }
+                
 
             }
+            
         }
+        
     }
 
     // Line of sight function by using Tag colliders and drawing Rays
@@ -190,18 +215,34 @@ public class EnemyControllerAstar : MonoBehaviour {
     void pingDifficultyChange() { // Enemies are faster the more ping the player has
         if (LevelManager.instance.currentPing > 0 && LevelManager.instance.currentPing < 50) {
             speed = 400f;
-            fireRate = 1f;
-            EnemyBullet.instance.speed = 6f;
+            fireRate = lowFireRate;
+            bulletSpeed = 6f;
         }
         else if (LevelManager.instance.currentPing >= 50 && LevelManager.instance.currentPing < 100) {
             speed = 500f;
-            fireRate = .8f;
-            EnemyBullet.instance.speed = 7.5f;
+            fireRate = mediumFireRate;
+            bulletSpeed = 7.5f;
         }
         else if (LevelManager.instance.currentPing >= 100) {
             speed = 650f;
-            fireRate = .6f;
-            EnemyBullet.instance.speed = 9f;
+            fireRate = highFireRate;
+            bulletSpeed = 9f;
         }
     }
+
+    
+
+    void shootTest() {
+        canShootTimer += Time.deltaTime;
+        if (canShootTimer > 2) {
+            canShoot = true;
+        }
+        else {
+            canShoot = false;
+        }
+    }
+
+    
+
+   
 }

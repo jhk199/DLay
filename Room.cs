@@ -8,6 +8,7 @@ public class Room : MonoBehaviour {
     public GameObject[] doors;
     public GameObject mapHider, outline;
     public int index; // tracking for Cloudlet Powerup
+    private bool doorRemoved = false;
    
     void Update() {
       
@@ -24,6 +25,7 @@ public class Room : MonoBehaviour {
         }
        
         LevelManager.instance.CurrentRoom = this;
+        
         // Minimap changes
         outline.SetActive(true);
         mapHider.SetActive(false);
@@ -52,11 +54,15 @@ public class Room : MonoBehaviour {
     }
 
     public void removeDoors() { // Removes doors
-        foreach (var door in doors) {
-            door.SetActive(false);
+        if(doorRemoved == false) {
+            foreach (var door in doors) {
+                door.GetComponent<Door>().Close();
+            }
+            doorsCloseOnEnter = false;
+            PlayerController.instance.inCombat = false; // Minimap displays again  
         }
-        doorsCloseOnEnter = false;
-        PlayerController.instance.inCombat = false; // Minimap displays again
+        doorRemoved = true;
+          
     }
 
     [HideInInspector]
@@ -64,4 +70,6 @@ public class Room : MonoBehaviour {
         
         return LevelManager.instance.CurrentRoom == this; 
     }
+
+    
 }

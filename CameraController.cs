@@ -10,6 +10,9 @@ public class CameraController : MonoBehaviour {
     public Transform target;
     public bool miniMapEnabled;
     public bool mapActive;
+    public bool cameraMoving = false;
+    public Vector3 prevPos;
+    public bool isBossRoom;
 
     private void Awake() {
         instance = this;
@@ -18,6 +21,10 @@ public class CameraController : MonoBehaviour {
     // Start is called before the first frame update
     void Start() {
         Time.timeScale = 1f;
+        prevPos = transform.position;
+        if(isBossRoom) {
+            target = PlayerController.instance.transform;
+        }
     }
 
     // Update is called once per frame
@@ -26,11 +33,21 @@ public class CameraController : MonoBehaviour {
             // Update player position
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(target.position.x, target.position.y, transform.position.z), moveSpeed * Time.deltaTime);
         }
-        miniMapZoom();
-        miniMapEnable();
-        inCombatMiniMap();
-        mapToggle();
+        if(prevPos != transform.position) {
+            cameraMoving = true;
+        }
+        if (prevPos == transform.position) {    
+            cameraMoving = false;
+        }
+        prevPos = transform.position;
         
+        if(!isBossRoom) {
+            miniMapZoom();
+            miniMapEnable();
+            inCombatMiniMap();
+            mapToggle();
+        }
+         
     }
 
     public void changeTarget(Transform newTarget) { //Used in Room

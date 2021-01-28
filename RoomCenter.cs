@@ -5,8 +5,11 @@ using UnityEngine;
 public class RoomCenter : MonoBehaviour {
     
     public List<GameObject> enemies = new List<GameObject>(); // Enemies in room
-    public bool openWhenEnemiesClear; // Does the room need to close it's doors?
+    public bool openWhenEnemiesClear, pickupPapers, buyPing; // Does the room need to close it's doors?
     public Room theRoom; // The Room the center is occupying
+    
+
+
 
     // Start is called before the first frame update
     void Start() {
@@ -35,12 +38,12 @@ public class RoomCenter : MonoBehaviour {
                 }
             }
         }
-
+             
         if (enemies.Count == 0) {
             theRoom.removeDoors();
             if (PlayerController.instance.currentPowerups.Count != 0) {
                 Powerups.instance.enemiesInRoom = 0; // Tracking for enemy count-based powerups
             }
-        }
+        }       
     }
 }

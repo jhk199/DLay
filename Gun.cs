@@ -14,6 +14,8 @@ public class Gun : MonoBehaviour {
     public int gunSound; // bang bang
     public string gunName;
     public Sprite gunUI;
+    private bool hpcChange = false, gcloudChange = false;
+    public int damage;
 
     public int itemCost; // $$$$$
     public Sprite gunShopSprite;
@@ -27,8 +29,28 @@ public class Gun : MonoBehaviour {
         
     }
     void Update() {
+        
         if(PlayerController.instance.canMove && !LevelManager.instance.isPaused) {
             Shoot();
+        }
+        if(hpcChange == false && PlayerController.instance.hpc == true) {
+            if(isShotgun) {
+                spreadMax -= 10;
+                spreadMin += 10;
+                
+            }
+            else {
+                spreadMax -= 2;
+                spreadMin += 2;
+                
+            }
+            hpcChange = true;
+        }
+        if (gcloudChange == false && PlayerController.instance.gcloud == true) {
+            spreadMax += 5;
+            spreadMin -= 5;
+            damage /= 5;
+            gcloudChange = true;
         }
     }
 
@@ -37,24 +59,37 @@ public class Gun : MonoBehaviour {
             shotCounter -= Time.deltaTime;
         }
         else {
-            if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)) {
-                AudioManager.instance.playSfx(gunSound);
+            if ((Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)) && PlayerController.instance.gcloud == false)  {
+                AudioManager.instance.playSfx(gunSound);       
                 if(isShotgun) { // Make LOTTA BULLETS FOR SHOTGUN!!!!
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
-
+                    makeBullet(8);
                 }
                 else { // Or one lame single bullet
-                    Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
+                    makeBullet(1);
                 } 
                 shotCounter = timeShot * timeShotPowerup; // Set shot counter based on timeShot and if you have fun powerup
-            }  
+            } 
+            else if((Input.GetMouseButtonDown(0) || Input.GetMouseButton(0)))  {
+                AudioManager.instance.playSfx(gunSound);
+                if (isShotgun) { // Make LOTTA BULLETS FOR SHOTGUN!!!!
+                    makeBullet(40);
+                    
+                }
+                else { // Or one lame single bullet
+                    makeBullet(5);
+                    
+                }
+                shotCounter = timeShot * timeShotPowerup; // Set shot counter based on timeShot and if you have fun powerup
+            }
+        }
+    }
+
+    void makeBullet(int times) {
+        int i = 0;
+        while(i < times) {
+            
+            Instantiate(bulletToFire, firePoint.position, firePoint.rotation * Quaternion.Euler(0f, 0f, Random.Range(spreadMin, spreadMax)));
+            i++;
         }
     }
 }

@@ -24,9 +24,13 @@ public class UIController : MonoBehaviour {
     // Tracking where powerup icons go
     public Transform powerups;
     public Transform powerupsPoint;
+    public GameObject serverCharges;
+    public GameObject[] servers;
     // Gun info
     public Image currentGun;
     public Text gunText;
+
+    public Slider bossHealthBar;
 
     private void Awake() {
         instance = this;
@@ -37,8 +41,11 @@ public class UIController : MonoBehaviour {
         // Fade in, set current gun UI
         fadeOutBlack = true;
         fadeToBlack = false;
-        currentGun.sprite = PlayerController.instance.availableGuns[PlayerController.instance.currentGun].gunUI;
-        gunText.text = PlayerController.instance.availableGuns[PlayerController.instance.currentGun].gunName;
+        if (SceneManager.GetActiveScene().name != "Tutorial") {
+            currentGun.sprite = PlayerController.instance.availableGuns[PlayerController.instance.currentGun].gunUI;
+            gunText.text = PlayerController.instance.availableGuns[PlayerController.instance.currentGun].gunName;
+        }
+        
     }
 
    
@@ -55,6 +62,10 @@ public class UIController : MonoBehaviour {
                 fadeToBlack = false;
             }
         }
+        if(SceneManager.GetActiveScene().name == "Boss Level") {
+            minimapText.SetActive(false);
+        }
+        
     }
 
     // Next functions are used by LevelManager

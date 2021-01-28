@@ -31,7 +31,7 @@ public class LevelGenerator : MonoBehaviour {
     // Lists
     [HideInInspector]
     public List<GameObject> layoutRoomObjects = new List<GameObject>();
-    [HideInInspector]
+    //[HideInInspector]
     public List<RoomPrefabs> roomPrefabs = new List<RoomPrefabs>();
     [HideInInspector]
     public List<GameObject> generatedOutlines = new List<GameObject>();

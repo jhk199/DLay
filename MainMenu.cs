@@ -7,6 +7,7 @@ public class MainMenu : MonoBehaviour {
 
     // Simple script to load menu and start the game!
     public string levelToLoad;
+    public string tutorial;
     // Start is called before the first frame update
     void Start() {
         
@@ -19,6 +20,9 @@ public class MainMenu : MonoBehaviour {
 
     public void startGame() {
         SceneManager.LoadScene(levelToLoad);
+    }
+    public void startTutorial() {
+        SceneManager.LoadScene(tutorial);
     }
 
     public void exitGame() {

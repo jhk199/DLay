@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealthController : MonoBehaviour {
 
@@ -48,8 +49,7 @@ public class PlayerHealthController : MonoBehaviour {
             
 
             if(PlayerController.instance.currentPowerups.Count != 0) {
-                PlayerController.instance.cloudTimer = 0f; // Resets CloudFog rating to 'F'
-                
+                PlayerController.instance.cloudTimer = 0f; // Resets CloudFog rating to 'F'  
             }
             
             currentHealth--; // oW!
@@ -62,8 +62,12 @@ public class PlayerHealthController : MonoBehaviour {
             PlayerController.instance.bodySR.color = new Color(0.77f, 0.33f, 0.33f, PlayerController.instance.bodySR.color.a); // Red color
             
             // DIE!
-            if (currentHealth <= 0) {
-                
+            if (currentHealth <= 0 && SceneManager.GetActiveScene().name == "Tutorial") {
+                currentHealth = 1;
+            }
+            if (currentHealth <= 0) { 
+
+
                 AudioManager.instance.playSfx(11);
                 
                 Time.timeScale = 0f; // Freeze game

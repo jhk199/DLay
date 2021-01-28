@@ -121,7 +121,7 @@ public class ShopItem : MonoBehaviour {
         if (bought == true) { // if bought play pretty sound, spend moolah, destroy item
             AudioManager.instance.playSfx(20);
             LevelManager.instance.spendPapers((int)Mathf.Round(itemCost));
-            gameObject.SetActive(false);
+            Destroy(gameObject);
             inBuyZone = false;
         }
         else {

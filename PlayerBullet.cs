@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBullet : MonoBehaviour {
+    
     public float speed = 7.5f;
     public Rigidbody2D theRB;
     public GameObject impact;
-
-    public int damage;
+    public int damage = 0; 
     // Start is called before the first frame update
 
+    
     void Start() {
-        
-        
+        damage = Gun.instance.damage;    
     }
 
     // Update is called once per frame
@@ -31,6 +31,11 @@ public class PlayerBullet : MonoBehaviour {
 
         if (other.tag == "EnemyAstar") {
             other.GetComponent<EnemyControllerAstar>().DamageEnemy(damage); // For AI enemies
+        }
+
+        if(other.tag == "Boss") {
+            BossScript.instance.takeDamage(damage);
+            Instantiate(BossScript.instance.hitEffect, transform.position, transform.rotation);
         }
 
         if (other.tag == "Breakable") {

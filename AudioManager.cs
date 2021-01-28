@@ -29,10 +29,13 @@ public class AudioManager : MonoBehaviour {
         winMusic.Play();
     }
 
+    
+
     public void level() {
         winMusic.Stop();
         levelMusic.Play();
     }
+
 
     public void playSfx(int sfxPlay) {
         sfx[sfxPlay].Stop();

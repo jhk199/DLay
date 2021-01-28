@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 // 99+ references, sheeeeeesh
 public class PlayerController : MonoBehaviour {
@@ -38,6 +39,9 @@ public class PlayerController : MonoBehaviour {
     public float cloudLoopChange;
     // CloudFog timer
     public float cloudTimer;
+    // Used by deleteBullet powerup
+    public float edgeServer;
+    public int edgeCount = 3;
     // dash
     public float dashSpeed = 8f, dashLength = .5f, dashCooldown = 1f, dashInvince = .5f;
     [HideInInspector]
@@ -50,22 +54,33 @@ public class PlayerController : MonoBehaviour {
     // Powerup Bools
     [HideInInspector]
     public bool cloudfog = false, cloudgameloop = false, oneHop = false, shopVisited = false,
-                deployserver = false, dynamiccodex = false, edgegame = false, hpc = false;
+                deployserver = false, dynamiccodex = false, edgegame = false, hpc = false, 
+                gcloud = false, edgeserver = false;
 
     private void Awake() {
         instance = this;
-        DontDestroyOnLoad(gameObject);
+        if(SceneManager.GetActiveScene().name != "Tutorial") {
+            DontDestroyOnLoad(gameObject);
+        }
+        
     }
     void Start() {
         activeMoveSpeed = moveSpeed * moveSpeedPowerup;
         AstarPath.active.Scan(); // Enemy tracking you now
-        UIController.instance.currentGun.sprite = availableGuns[currentGun].gunUI;
-        UIController.instance.gunText.text = availableGuns[currentGun].gunName; 
+        if (SceneManager.GetActiveScene().name != "Tutorial") {
+            UIController.instance.currentGun.sprite = availableGuns[currentGun].gunUI;
+            UIController.instance.gunText.text = availableGuns[currentGun].gunName;
+        }
+        
+        
     }
 
     // Update is called once per frame
     void Update() {
-        if(canMove & !LevelManager.instance.isPaused) {
+        Vector3 pos = transform.position;
+        pos.z = 0;
+        transform.position = pos;
+        if (canMove & !LevelManager.instance.isPaused) {
             if (cloudfog == true) { // If you have CloudFog powerup
                 cloudFogTimer();
             }   
@@ -73,6 +88,18 @@ public class PlayerController : MonoBehaviour {
             Aim();
             Dodge();
             gunInput();
+            if(edgeserver == true) {
+                edgeServerLoop();
+            }
+            if(edgeCount == 0) {
+                edgeserver = false;
+            }
+
+            if(Input.GetKeyDown(KeyCode.E)) {
+                Debug.Log(LevelManager.instance.CurrentRoom.name);
+            }
+            
+            
         }
         else { // Stand still and breathe!
             theRB.velocity = Vector2.zero;
@@ -198,6 +225,13 @@ public class PlayerController : MonoBehaviour {
     void cloudFogTimer() { // Timer for cloudfog powerup
         cloudTimer += Time.deltaTime;
     }
+
+    
+
+    void edgeServerLoop() {
+        edgeServer += Time.deltaTime;
+    }
+   
 
 
 }

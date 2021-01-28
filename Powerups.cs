@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Powerups : MonoBehaviour {
 
@@ -20,8 +21,9 @@ public class Powerups : MonoBehaviour {
     public int speedChange;
     [HideInInspector]
     public int enemiesInRoom;
-    public enum powerup { amirialg, caileung, cloudfog, cloudgameloop, cloudlet, deployserver, dynamiccodecs, 
-                          edgegame, edgenode, edgeserver, fiberoptic, gcloud, higherband, hpc, icloud }; // Selection of all powerups
+    public enum powerup { amirialg, caileung, cloudfog, cloudgameloop, cloudlet, deployserver, 
+                        dynamiccodecs, edgegame, edgenode, edgeserver, fiberoptic, gcloud, 
+                        higherband, hpc, icloud }; // Selection of all powerups
     public powerup selectedPowerup; // For switch
     
 
@@ -40,7 +42,8 @@ public class Powerups : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        // Bools are all stored in PlayerController as there is only one instance and doesn't screw up other powerups
+        // Bools are all stored in PlayerController as there is only one instance 
+            // and doesn't screw up other powerups
         if(PlayerController.instance.cloudgameloop) {
             cloudGameLoop();
         }
@@ -49,6 +52,10 @@ public class Powerups : MonoBehaviour {
         }
         if (PlayerController.instance.hpc) {
             hpcLoop();
+            
+        }
+        if (PlayerController.instance.edgeserver) {
+            edgeServerLoop();
         }
     }
 
@@ -102,12 +109,23 @@ public class Powerups : MonoBehaviour {
             case powerup.edgenode:
                 break;
             case powerup.edgeserver:
+                PlayerController.instance.edgeserver = true;
+                PlayerController.instance.edgeServer = 5;
+                UIController.instance.serverCharges.SetActive(true);
+                foreach (GameObject server in UIController.instance.servers) {
+                    server.SetActive(true);
+                }
+
                 break;
             case powerup.fiberoptic:
                 // Speed up
                 PlayerController.instance.moveSpeedPowerup *= 1.2f;
                 break;
             case powerup.gcloud:
+                PlayerController.instance.gcloud = true;
+                
+                LevelManager.instance.currentPing = 70f;
+                LevelManager.instance.setPing();
                 break;
             case powerup.higherband:
                 // More hp
@@ -135,10 +153,40 @@ public class Powerups : MonoBehaviour {
 
     void hpcLoop() { // Shoot quicker
         if (enemiesInRoom > 0) {
-            Gun.instance.timeShotPowerup = (1f / (enemiesInRoom));
+            Gun.instance.timeShotPowerup = (2f / (enemiesInRoom));
+            // Possible if statement: if timeShotPowerup > 1, set timeShotPowerup == 1;
         }
         if (enemiesInRoom == 0) {
             Gun.instance.timeShotPowerup = 1;
+        }
+    }
+
+    void edgeServerLoop() {
+        if (Input.GetKeyDown(KeyCode.Q)) {   
+            if(GameObject.FindGameObjectsWithTag("EnemyBullet").Length > 0 && PlayerController.instance.edgeServer > 5 ) {
+                PlayerController.instance.edgeServer = 0;
+                PlayerController.instance.edgeCount -= 1;
+                UIController.instance.servers[PlayerController.instance.edgeCount].SetActive(false);
+                foreach(GameObject bullet in GameObject.FindGameObjectsWithTag("EnemyBullet")) {
+                    if (SceneManager.GetActiveScene().name == "Tutorial") {
+                        Instantiate(bullet.GetComponent<TutorialBullet>().impact, bullet.transform.position, bullet.transform.rotation);
+                    }
+                    else {
+                        Instantiate(bullet.GetComponent<EnemyBullet>().impact, bullet.transform.position, bullet.transform.rotation); // Hit wall effect
+                    }
+                    AudioManager.instance.playSfx(4);
+                    Destroy(bullet);  
+                }
+                foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("EnemyAstar")) {
+                    if (SceneManager.GetActiveScene().name == "Tutorial") {
+                        enemy.GetComponent<TutorialShooter>().canShootTimer = 0;
+                    }
+                    else {
+                        enemy.GetComponent<EnemyControllerAstar>().canShootTimer = 0;
+                    }
+                        
+                }
+            }     
         }
     }
 
